@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1098122317171",
+    "firebase_url": "https://capstone-project-ea16c.firebaseio.com",
+    "project_id": "capstone-project-ea16c",
+    "storage_bucket": "capstone-project-ea16c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1098122317171:android:aec0cf37729abb6b",
+        "android_client_info": {
+          "package_name": "com.example.triviaapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1098122317171-3k81ff5vhdaf7bb5eihs1mvorj3bs4iv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.triviaapp",
+            "certificate_hash": "736e0fd2c4e090985f55961f08475fb8b0c8b6ec"
+          }
+        },
+        {
+          "client_id": "1098122317171-far9ndlp41p6ooafdi25amvi93ihneug.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgmmCM9vwKa3cHxTEYjRxvy6nFMRjTTVg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1098122317171-far9ndlp41p6ooafdi25amvi93ihneug.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
