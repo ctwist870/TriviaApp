@@ -20,6 +20,7 @@ void getUID() async {
 class CreateQuestion extends State<QPage> {
   List<Pack> packs = List();
   Pack newPack;
+  ScrollController scroll = new ScrollController();
   List<dynamic> mapList = List();
   var qMap = {
     'prompt' : '',
@@ -37,7 +38,7 @@ class CreateQuestion extends State<QPage> {
   @override
   void initState() {
     super.initState();
-    newPack = Pack("", "", mapList, UID);
+    newPack = Pack("", "", mapList, UID, 0.5, 0);
     final FirebaseDatabase database = FirebaseDatabase.instance;
     dbRef = database.reference().child('Packs');
     dbRef.onChildAdded.listen(_onPackAdded);
@@ -86,7 +87,7 @@ class CreateQuestion extends State<QPage> {
       return new Scaffold(
         appBar: new AppBar(
           title: new Text("Enter new pack information"),
-          backgroundColor: Colors.blueAccent,
+          backgroundColor: Colors.redAccent,
         ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -195,123 +196,126 @@ class CreateQuestion extends State<QPage> {
       return new Scaffold(
         appBar: new AppBar(
           title: new Text("Create a new question!"),
-          backgroundColor: Colors.lightGreenAccent,
+          backgroundColor: Colors.redAccent,
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            Flexible(
-              flex: 0,
-              child: Center(
-                child: Form(
-                  key: questKey,
-                  child: Flex(
-                    direction: Axis.vertical,
-                    children: <Widget>[
-                      new Text (
-                          'Enter prompt, answer, and 3 false answers'
-                      ),
-                      ListTile(
-                        title: TextFormField(
-                          initialValue: "",
-                          onSaved: (val) => qMap["prompt"] = val,
-                          validator: (val) => val == "" ? val : null,
-                          decoration: InputDecoration(
-                              labelText: 'Enter Prompt'
+        body: SingleChildScrollView(
+          controller: scroll,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              Flexible(
+                flex: 0,
+                child: Center(
+                  child: Form(
+                    key: questKey,
+                    child: Flex(
+                      direction: Axis.vertical,
+                      children: <Widget>[
+                        new Text (
+                            'Enter prompt, answer, and 3 false answers'
+                        ),
+                        ListTile(
+                          title: TextFormField(
+                            initialValue: "",
+                            onSaved: (val) => qMap["prompt"] = val,
+                            validator: (val) => val == "" ? val : null,
+                            decoration: InputDecoration(
+                                labelText: 'Enter Prompt'
+                            ),
                           ),
                         ),
-                      ),
-                      ListTile(
-                        title: TextFormField(
-                          initialValue: "",
-                          onSaved: (val) => qMap["answer"] = val,
-                          validator: (val) => val == "" ? val : null,
-                          decoration: InputDecoration(
-                              labelText: 'Enter Correct Answer'
+                        ListTile(
+                          title: TextFormField(
+                            initialValue: "",
+                            onSaved: (val) => qMap["answer"] = val,
+                            validator: (val) => val == "" ? val : null,
+                            decoration: InputDecoration(
+                                labelText: 'Enter Correct Answer'
+                            ),
                           ),
                         ),
-                      ),
-                      ListTile(
-                        title: TextFormField(
-                          initialValue: "",
-                          onSaved: (val) => qMap["false1"] = val,
-                          validator: (val) => val == "" ? val : null,
-                          decoration: InputDecoration(
-                              labelText: 'Enter a False Answer'
+                        ListTile(
+                          title: TextFormField(
+                            initialValue: "",
+                            onSaved: (val) => qMap["false1"] = val,
+                            validator: (val) => val == "" ? val : null,
+                            decoration: InputDecoration(
+                                labelText: 'Enter a False Answer'
+                            ),
                           ),
                         ),
-                      ),
-                      ListTile(
-                        title: TextFormField(
-                          initialValue: "",
-                          onSaved: (val) => qMap["false2"] = val,
-                          validator: (val) => val == "" ? val : null,
-                          decoration: InputDecoration(
-                              labelText: 'Enter a False Answer'
+                        ListTile(
+                          title: TextFormField(
+                            initialValue: "",
+                            onSaved: (val) => qMap["false2"] = val,
+                            validator: (val) => val == "" ? val : null,
+                            decoration: InputDecoration(
+                                labelText: 'Enter a False Answer'
+                            ),
                           ),
                         ),
-                      ),
-                      ListTile(
-                        title: TextFormField(
-                          initialValue: "",
-                          onSaved: (val) => qMap["false3"] = val,
-                          validator: (val) => val == "" ? val : null,
-                          decoration: InputDecoration(
-                              labelText: 'Enter a False Answer'
+                        ListTile(
+                          title: TextFormField(
+                            initialValue: "",
+                            onSaved: (val) => qMap["false3"] = val,
+                            validator: (val) => val == "" ? val : null,
+                            decoration: InputDecoration(
+                                labelText: 'Enter a False Answer'
+                            ),
                           ),
                         ),
-                      ),
-                      RaisedButton(
-                        onPressed: () {
-                          return showDialog<void>(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                content: new Text("Question added! Add another?"),
-                                actions: <Widget>[
-                                  new FlatButton(
-                                    child: const Text('YES'),
-                                    onPressed: () {
-                                      handleQuestionSubmit();
-                                      Navigator.pop(context, false);
-                                    },
-                                  ),
-                                  new FlatButton(
-                                    child: const Text('NO'),
-                                    onPressed: () {
-                                      handleQuestionSubmit();
-                                      handleFinalSubmit();
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        color: Colors.lightGreenAccent,
-                        padding: EdgeInsets.all(10.0),
-                        child: Column(
-                          children: <Widget>[
-                            Icon(Icons.report),
-                            Text("Submit"),
-                          ],
+                        RaisedButton(
+                          onPressed: () {
+                            return showDialog<void>(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  content: new Text("Question added! Add another?"),
+                                  actions: <Widget>[
+                                    new FlatButton(
+                                      child: const Text('YES'),
+                                      onPressed: () {
+                                        handleQuestionSubmit();
+                                        Navigator.pop(context, false);
+                                      },
+                                    ),
+                                    new FlatButton(
+                                      child: const Text('NO'),
+                                      onPressed: () {
+                                        handleQuestionSubmit();
+                                        handleFinalSubmit();
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          color: Colors.lightGreenAccent,
+                          padding: EdgeInsets.all(10.0),
+                          child: Column(
+                            children: <Widget>[
+                              Icon(Icons.report),
+                              Text("Submit"),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            RaisedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text('Cancel')
-            ),
-          ],
-        ),
+              RaisedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Cancel')
+              ),
+            ],
+          ),
+        )
       );
     }
   }

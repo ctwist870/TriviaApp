@@ -7,6 +7,8 @@ import 'dart:async';
 import 'question_create.dart';
 import 'edit_q.dart';
 import 'users.dart';
+import 'search.dart';
+import 'rand_pack.dart';
 
 void main() {
   runApp(
@@ -114,6 +116,28 @@ class SignInState extends State<HomePage> {
                   );
                 },
                 color: Colors.blue
+            ),
+            RaisedButton(
+                child: const Text('Search for Packs'),
+                textColor: Colors.white,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Search()),
+                  );
+                },
+                color: Colors.yellow
+            ),
+            RaisedButton(
+                child: const Text('Generate Pack'),
+                textColor: Colors.white,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RandomPack()),
+                  );
+                },
+                color: Colors.orange
             ),
           ],
         );

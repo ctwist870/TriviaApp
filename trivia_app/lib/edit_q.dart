@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
+import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'pack.dart';
 import 'dart:core';
@@ -18,9 +19,11 @@ class PackEditForm extends State<PackEdit> {
   List<Pack> _packs = List();
   List<String> keys = List();
   DatabaseReference _dbRef;
+  double rating;
   String chosenKey;
   Pack chosenPack;
   var pack_chosen = 0;
+  ScrollController scroll = new ScrollController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -49,7 +52,9 @@ class PackEditForm extends State<PackEdit> {
         'name': chosenPack.name,
         'tags': chosenPack.tags,
         'user': chosenPack.user,
-        'qs': chosenPack.qs
+        'qs': chosenPack.qs,
+        'rating': chosenPack.rating,
+        'rateCount': chosenPack.rateCount
       });
     }
   }
@@ -57,6 +62,10 @@ class PackEditForm extends State<PackEdit> {
   Widget build(BuildContext context) {
     if(pack_chosen == 0) {
       return new Scaffold(
+        appBar: new AppBar(
+          title: new Text("Available Packs"),
+          backgroundColor: Colors.blueAccent,
+        ),
         body: Column(
           children: <Widget>[
             Flexible(
@@ -84,11 +93,26 @@ class PackEditForm extends State<PackEdit> {
                       itemBuilder: (BuildContext context, DataSnapshot snapshot,
                           Animation<double> animation, int index) {
                         if (UID == _packs[index].user) {
+                          if(_packs[index].rateCount == 0){
+                            rating = 0.0;
+                          }
+                          else{
+                            rating = _packs[index].rating/_packs[index].rateCount;
+                          }
                           return new ListTile(
+                            isThreeLine: true,
                             enabled: true,
                             leading: Icon(Icons.create),
                             title: Text(_packs[index].name),
                             subtitle: Text(_packs[index].tags),
+                            trailing: SmoothStarRating(
+                              allowHalfRating: true,
+                              rating: rating,
+                              starCount: 5,
+                              size: 20.0,
+                              color: Colors.yellow,
+                              borderColor: Colors.black,
+                            ),
                             onTap:(){
                               setState(() {
                                 chosenPack = _packs[index];
@@ -116,7 +140,14 @@ class PackEditForm extends State<PackEdit> {
     }
     else{
       return new Scaffold(
-        body: Column(
+          appBar: new AppBar(
+            title: new Text("Edit This Pack..."),
+            backgroundColor: Colors.blueAccent,
+          ),
+        body: SingleChildScrollView(
+          controller: scroll,
+          child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Flexible(
               flex: 0,
@@ -124,10 +155,12 @@ class PackEditForm extends State<PackEdit> {
                 child: Form(
                   key: _formKey,
                   child: Flex(
+                    mainAxisSize: MainAxisSize.min,
+                    verticalDirection: VerticalDirection.down,
                     direction: Axis.vertical,
                     children: <Widget>[
                       new Text ('Edit relevant info, scroll down for all questions'),
-                      ListTile(
+                      new ListTile(
                         title: TextFormField(
                           initialValue: chosenPack.name,
                           onSaved: (val) => chosenPack.name = val,
@@ -137,7 +170,7 @@ class PackEditForm extends State<PackEdit> {
                           ),
                         ),
                       ),
-                      ListTile(
+                      new ListTile(
                         title: TextFormField(
                           initialValue: chosenPack.tags,
                           onSaved: (val) => chosenPack.tags = val,
@@ -147,22 +180,84 @@ class PackEditForm extends State<PackEdit> {
                           ),
                         ),
                       ),
-                      /*AnimatedList(
-                        itemBuilder: (BuildContext context, int index, Animation<double> animation) {
-                          for (Map m in chosenPack.qs) {
-                              ListTile(
-                              title: TextFormField(
-                                initialValue: m["prompt"],
-                                onSaved: (val) => m["prompt"] = val,
-                                validator: (val) => val == "" ? val : null,
-                                decoration: InputDecoration(
-                                    labelText: 'Enter Prompt'
+                      new ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: chosenPack.qs.length,
+                        itemBuilder: (BuildContext context, int index){
+                          return new Column(
+                              children: <Widget>[
+                                Text("Question ${index+1}",
+                                  style: TextStyle(fontSize: 15),
                                 ),
-                              ),
+                                Padding(
+                                  padding: EdgeInsets.all(5.0),
+                                  child: new ListTile(
+                                    title: TextFormField(
+                                      initialValue: chosenPack.qs[index]["prompt"],
+                                      onSaved: (val) => chosenPack.qs[index]["prompt"] = val,
+                                      validator: (val) => val == "" ? val : null,
+                                      decoration: InputDecoration(
+                                          labelText: 'Enter prompt'
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(5.0),
+                                  child: new ListTile(
+                                    title: TextFormField(
+                                      initialValue: chosenPack.qs[index]["answer"],
+                                      onSaved: (val) => chosenPack.qs[index]["answer"] = val,
+                                      validator: (val) => val == "" ? val : null,
+                                      decoration: InputDecoration(
+                                          labelText: 'Enter answer'
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(5.0),
+                                  child: new ListTile(
+                                    title: TextFormField(
+                                      initialValue: chosenPack.qs[index]["false1"],
+                                      onSaved: (val) => chosenPack.qs[index]["false1"] = val,
+                                      validator: (val) => val == "" ? val : null,
+                                      decoration: InputDecoration(
+                                          labelText: 'Enter a false answer'
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(5.0),
+                                  child: new ListTile(
+                                    title: TextFormField(
+                                      initialValue: chosenPack.qs[index]["false2"],
+                                      onSaved: (val) => chosenPack.qs[index]["false2"] = val,
+                                      validator: (val) => val == "" ? val : null,
+                                      decoration: InputDecoration(
+                                          labelText: 'Enter a false answer'
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(5.0),
+                                  child: new ListTile(
+                                    title: TextFormField(
+                                      initialValue: chosenPack.qs[index]["false3"],
+                                      onSaved: (val) => chosenPack.qs[index]["false3"] = val,
+                                      validator: (val) => val == "" ? val : null,
+                                      decoration: InputDecoration(
+                                          labelText: 'Enter a false answer'
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             );
-                          }
                         },
-                      ),*/
+                      ),
                       RaisedButton(
                         onPressed: () {
                           return showDialog<void>(
@@ -210,13 +305,13 @@ class PackEditForm extends State<PackEdit> {
             RaisedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                },
+                  },
                 child: Text('Back')
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       );
     }
   }
-
 }
