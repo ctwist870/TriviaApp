@@ -13,8 +13,14 @@ import 'rand_pack.dart';
 void main() {
   runApp(
     MaterialApp(
-      title: 'Trivia App',
+      title: 'Trivia Time',
       home: HomePage(),
+      theme: new ThemeData(
+        brightness: Brightness.dark,
+        primaryColor: Colors.blueGrey,
+        accentColor: Colors.white30,
+        //primarySwatch: Colors.blue,
+      ),
     ),
   );
 }
@@ -83,17 +89,29 @@ class SignInState extends State<HomePage> {
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            ListTile(
-              leading: GoogleUserCircleAvatar(
-                identity: _currentUser,
-              ),
-              title: Text(_currentUser.displayName),
-              subtitle: Text(_currentUser.email),
-            ),
-            const Text("Signed in as USER."),
-            RaisedButton(
-              child: const Text('SIGN OUT'),
-              onPressed: _signOut,
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: Align(
+                    alignment: FractionalOffset.topLeft,
+                    child: Center(
+                      child: ListTile(
+                        title: Text("Signed in as " + _currentUser.displayName),
+                        subtitle: Text(_currentUser.email),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Align(
+                    alignment: FractionalOffset.topRight,
+                    child: RaisedButton(
+                      child: const Text('SIGN OUT'),
+                      onPressed: _signOut,
+                    ),
+                  ),
+                )
+              ],
             ),
             RaisedButton(
                 child: const Text('Create Trivia Pack'),
@@ -104,7 +122,7 @@ class SignInState extends State<HomePage> {
                     MaterialPageRoute(builder: (context) => QPage()),
                   );
                 },
-                color: Colors.red
+                color: Colors.blue
             ),
             RaisedButton(
                 child: const Text('Edit My Packs'),
@@ -126,7 +144,7 @@ class SignInState extends State<HomePage> {
                     MaterialPageRoute(builder: (context) => Search()),
                   );
                 },
-                color: Colors.yellow
+                color: Colors.blue
             ),
             RaisedButton(
                 child: const Text('Generate Pack'),
@@ -137,7 +155,7 @@ class SignInState extends State<HomePage> {
                     MaterialPageRoute(builder: (context) => RandomPack()),
                   );
                 },
-                color: Colors.orange
+                color: Colors.blue
             ),
           ],
         );
@@ -159,11 +177,23 @@ class SignInState extends State<HomePage> {
     Widget build(BuildContext context) {
       return Scaffold(
           appBar: AppBar(
-            title: const Text('It\'s a Trivia App'),
+            title: const Text("Welcome to Trivia Time!"),
           ),
-          body: ConstrainedBox(
-            constraints: const BoxConstraints.expand(),
-            child: _buildBody(),
-          ));
+          body: Center(
+            child: Container(
+              //color: Theme.of(context).accentColor,
+              decoration: new BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage("images/ambient.gif"),
+                  fit: BoxFit.cover,
+                ),
+              ),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints.expand(),
+                child: _buildBody(),
+              ),
+            ),
+          ),
+      );
     }
 }

@@ -64,46 +64,63 @@ class SearchForm extends State<Search> {
       return new Scaffold(
         appBar: new AppBar(
           title: new Text("Search for packs"),
-          backgroundColor: Colors.yellowAccent,
         ),
-        body: Column(
-          children: <Widget>[
-            Text("Search for packs by tags",
-              style: TextStyle(fontSize: 15),
-            ),
-            Flexible(
-              flex: 0,
-              child: Center(
-                child: Form(
-                  key: formKey,
-                  child: Center(
-                    child: ListTile(
-                      title: TextFormField(
-                        initialValue: "",
-                        onSaved: (val) => searchTags = val,
-                        validator: (val) => val == "" ? val : null,
-                        decoration: InputDecoration(
-                            labelText: 'Enter tag(s)'
+        body: Center(
+            child: Container(
+              decoration: new BoxDecoration(
+                image: new DecorationImage(
+                  image: new AssetImage("images/ambient3.gif"),
+                  fit: BoxFit.cover,
+                ),
+              ),
+              child: Column(
+                children: <Widget>[
+                  Text("Search for packs by tags",
+                    style: TextStyle(fontSize: 20, color: Colors.white70),
+                  ),
+                  Flexible(
+                    flex: 0,
+                    child: Center(
+                      child: Form(
+                        key: formKey,
+                        child: Column(
+                          children: <Widget>[
+                            Container(
+                              alignment: Alignment(0.0, 0.0),
+                              color: Theme.of(context).accentColor,
+                              child: ListTile(
+                                title: TextFormField(
+                                  initialValue: "",
+                                  onSaved: (val) => searchTags = val,
+                                  validator: (val) => val == "" ? val : null,
+                                  decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Theme.of(context).accentColor,
+                                      labelStyle: TextStyle(color: Colors.black),
+                                      labelText: 'Enter tag(s)'
+                                  ),
+                                ),
+                              ),
+                            ),
+                            RaisedButton(
+                                child: const Text('Initiate Search'),
+                                textColor: Colors.white,
+                                onPressed: () {
+                                  setState(() {
+                                    handleSubmit();
+                                    createRegex(searchTags);
+                                    searched = 1;
+                                  });
+                                },
+                            ),
+                          ]
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
-            RaisedButton(
-                child: const Text('Initiate Search'),
-                textColor: Colors.white,
-                onPressed: () {
-                  setState(() {
-                    handleSubmit();
-                    createRegex(searchTags);
-                    searched = 1;
-                  });
-                },
-                color: Colors.yellow
-            ),
-          ],
         ),
       );
     }
@@ -111,61 +128,73 @@ class SearchForm extends State<Search> {
       return new Scaffold(
         appBar: new AppBar(
           title: new Text("Play a pack"),
-          backgroundColor: Colors.yellowAccent,
         ),
-        body: Column(
-          children: <Widget>[
-            Flexible(
-              flex: 0,
-              child: Center(
-                child: Center(
-                  heightFactor: 5.0,
-                  widthFactor: 1.0,
-                  child: Text("Tap a pack to get started!",
-                    style: TextStyle(fontSize: 15),
-                  ),
+        body: Center(
+            child: Container(
+              decoration: new BoxDecoration(
+                image: new DecorationImage(
+                  image: new AssetImage("images/ambient3.gif"),
+                  fit: BoxFit.cover,
                 ),
               ),
-            ),
-            Flexible(
-              child: new FirebaseAnimatedList(
-                query: _dbRef,
-                itemBuilder: (BuildContext context, DataSnapshot snapshot,
-                    Animation<double> animation, int index) {
-                  if(tagCheck.hasMatch(_packs[index].tags)) {
-                    if(_packs[index].rateCount == 0){
-                      rating = 0.0;
-                    }
-                    else{
-                      rating = _packs[index].rating/_packs[index].rateCount;
-                    }
-                    return new ListTile(
-                      enabled: true,
-                      leading: Icon(Icons.create),
-                      title: Text(_packs[index].name),
-                      subtitle: Text(_packs[index].tags),
-                      trailing: SmoothStarRating(
-                        allowHalfRating: true,
-                        rating: rating,
-                        starCount: 5,
-                        size: 20.0,
-                        color: Colors.yellow,
-                        borderColor: Colors.black,
+              child: Column(
+                children: <Widget>[
+                  Flexible(
+                    flex: 0,
+                    child: Center(
+                      child: Center(
+                        heightFactor: 5.0,
+                        widthFactor: 1.0,
+                        child: Text("Tap a pack to get started!",
+                          style: TextStyle(fontSize: 20, color: Colors.white70),
+                        ),
                       ),
-                      onTap: () {
-                        setState(() {
-                          Navigator.push(context, new MaterialPageRoute(builder: (context) => new Trivia(chosenPack: _packs[index], chosenKey: keys[index])));
-                        });
+                    ),
+                  ),
+                  Flexible(
+                    child: new FirebaseAnimatedList(
+                      query: _dbRef,
+                      itemBuilder: (BuildContext context, DataSnapshot snapshot,
+                          Animation<double> animation, int index) {
+                        if(tagCheck.hasMatch(_packs[index].tags)) {
+                          if(_packs[index].rateCount == 0){
+                            rating = 0.0;
+                          }
+                          else{
+                            rating = _packs[index].rating/_packs[index].rateCount;
+                          }
+                          return new Container(
+                            color: Theme.of(context).accentColor,
+                            child: ListTile(
+                              enabled: true,
+                              leading: Icon(Icons.create),
+                              title: Text(_packs[index].name),
+                              subtitle: Text(_packs[index].tags),
+                              trailing: SmoothStarRating(
+                                allowHalfRating: true,
+                                rating: rating,
+                                starCount: 5,
+                                size: 20.0,
+                                color: Colors.yellow,
+                                borderColor: Colors.black,
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  Navigator.push(context, new MaterialPageRoute(builder: (context) => new Trivia(chosenPack: _packs[index], chosenKey: keys[index])));
+                                });
+                              },
+                            ),
+                          );
+                        }
+                        else{
+                          return new Container();
+                        }
                       },
-                    );
-                  }
-                  else{
-                    return new Container();
-                  }
-                },
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
         ),
       );
     }

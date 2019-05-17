@@ -28,6 +28,7 @@ class CreateQuestion extends State<QPage> {
     'false1' : '',
     'false2' : '',
     'false3' : '',
+    'flagCount' : 0,
   };
   DatabaseReference dbRef;
   var addQuestions = 0;
@@ -66,13 +67,6 @@ class CreateQuestion extends State<QPage> {
       form.save();
       form.reset();
       newPack.qs.add(new Map.from(qMap));
-      for (Map Q in newPack.qs){
-        print(Q["prompt"]);
-        print(Q["answer"]);
-        print(Q["false1"]);
-        print(Q["false2"]);
-        print(Q["false3"]);
-      }
     }
   }
 
@@ -87,108 +81,134 @@ class CreateQuestion extends State<QPage> {
       return new Scaffold(
         appBar: new AppBar(
           title: new Text("Enter new pack information"),
-          backgroundColor: Colors.redAccent,
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            Flexible(
-              flex: 0,
-              child: Center(
-                child: Form(
-                  key: packKey,
-                  child: Flex(
-                    direction: Axis.vertical,
-                    children: <Widget>[
-                      new FutureBuilder<FirebaseUser>(
-                      future: FirebaseAuth.instance.currentUser(),
-                      builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          UID = snapshot.data.uid;
-                          newPack.user = UID;
-                          return new Text (
-                            'Enter a name for the pack, and relevant tags'
-                          );
-                        }
-                        else {
-                          return new Text('Loading...');
-                          }
-                        },
-                      ),
-                      ListTile(
-                        title: TextFormField(
-                          initialValue: "",
-                          onSaved: (val) => newPack.name = val,
-                          validator: (val) => val == "" ? val : null,
-                          decoration: InputDecoration(
-                              labelText: 'Enter Name'
-                          ),
-                        ),
-                      ),
-                      ListTile(
-                        title: TextFormField(
-                          initialValue: "",
-                          onSaved: (val) => newPack.tags = val,
-                          validator: (val) => val == "" ? val : null,
-                          decoration: InputDecoration(
-                              labelText: 'Enter tags, separated by single spaces'
-                          ),
-                        ),
-                      ),
-                      RaisedButton(
-                        onPressed: () {
-                          return showDialog<void>(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              content: new Text("Pack created! Add questions now?"),
-                              actions: <Widget>[
-                                new FlatButton(
-                                  child: const Text('YES'),
-                                  onPressed: () {
-                                    handleInitialSubmit();
-                                    setState(() {
-                                      addQuestions = 1;
-                                    });
-                                    Navigator.pop(context, false);
-                                  },
-                                ),
-                                new FlatButton(
-                                  child: const Text('NO'),
-                                  onPressed: () {
-                                    handleInitialSubmit();
-                                    handleFinalSubmit();
-                                    Navigator.pop(context, true);
-                                    Navigator.pop(context, true);
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                          );
-                        },
-                        color: Colors.lightBlue,
-                        padding: EdgeInsets.all(10.0),
-                        child: Column(
+        body: Center(
+          child: Container(
+            decoration: new BoxDecoration(
+              image: new DecorationImage(
+                image: new AssetImage("images/ambient3.gif"),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints.expand(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  Flexible(
+                    flex: 0,
+                    child: Center(
+                      child: Form(
+                        key: packKey,
+                        child: Flex(
+                          direction: Axis.vertical,
                           children: <Widget>[
-                            Icon(Icons.report),
-                            Text("Submit"),
+                            new FutureBuilder<FirebaseUser>(
+                              future: FirebaseAuth.instance.currentUser(),
+                              builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
+                                if (snapshot.connectionState == ConnectionState.done) {
+                                  UID = snapshot.data.uid;
+                                  newPack.user = UID;
+                                  return new Text (
+                                      'Enter a name for the pack, and relevant tags',
+                                      style: TextStyle(fontSize: 20, color: Colors.white70),
+                                  );
+                                }
+                                else {
+                                  return new Text('Loading...');
+                                }
+                              },
+                            ),
+                            Container(
+                              alignment: Alignment(0.0, 0.0),
+                              color: Theme.of(context).accentColor,
+                              child: ListTile(
+                                title: TextFormField(
+                                  initialValue: "",
+                                  onSaved: (val) => newPack.name = val,
+                                  validator: (val) => val == "" ? val : null,
+                                  decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Theme.of(context).accentColor,
+                                      labelStyle: TextStyle(color: Colors.black),
+                                      labelText: 'Enter Name'
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              alignment: Alignment(0.0, 0.0),
+                              color: Theme.of(context).accentColor,
+                              child: ListTile(
+                                title: TextFormField(
+                                  initialValue: "",
+                                  onSaved: (val) => newPack.tags = val,
+                                  validator: (val) => val == "" ? val : null,
+                                  decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Theme.of(context).accentColor,
+                                      labelStyle: TextStyle(color: Colors.black),
+                                      labelText: 'Enter tags, separated by single spaces'
+                                  ),
+                                ),
+                              ),
+                            ),
+                            RaisedButton(
+                              onPressed: () {
+                                return showDialog<void>(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      content: new Text("Pack created! Add questions now?"),
+                                      actions: <Widget>[
+                                        new FlatButton(
+                                          child: const Text('YES'),
+                                          onPressed: () {
+                                            handleInitialSubmit();
+                                            setState(() {
+                                              addQuestions = 1;
+                                            });
+                                            Navigator.pop(context, false);
+                                          },
+                                        ),
+                                        new FlatButton(
+                                          child: const Text('NO'),
+                                          onPressed: () {
+                                            handleInitialSubmit();
+                                            handleFinalSubmit();
+                                            Navigator.popUntil(context, ModalRoute.withName(Navigator.defaultRouteName));
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              color: Colors.lightBlue,
+                              padding: EdgeInsets.all(10.0),
+                              child: Column(
+                                children: <Widget>[
+                                  Icon(Icons.report),
+                                  Text("Submit"),
+                                ],
+                              ),
+                            ),
+                            RaisedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text('Cancel')
+                            ),
                           ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-            RaisedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text('Cancel')
-            ),
-          ],
+          ),
         ),
       );
     }
@@ -196,126 +216,154 @@ class CreateQuestion extends State<QPage> {
       return new Scaffold(
         appBar: new AppBar(
           title: new Text("Create a new question!"),
-          backgroundColor: Colors.redAccent,
         ),
-        body: SingleChildScrollView(
-          controller: scroll,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              Flexible(
-                flex: 0,
-                child: Center(
-                  child: Form(
-                    key: questKey,
-                    child: Flex(
-                      direction: Axis.vertical,
-                      children: <Widget>[
-                        new Text (
-                            'Enter prompt, answer, and 3 false answers'
-                        ),
-                        ListTile(
-                          title: TextFormField(
-                            initialValue: "",
-                            onSaved: (val) => qMap["prompt"] = val,
-                            validator: (val) => val == "" ? val : null,
-                            decoration: InputDecoration(
-                                labelText: 'Enter Prompt'
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          title: TextFormField(
-                            initialValue: "",
-                            onSaved: (val) => qMap["answer"] = val,
-                            validator: (val) => val == "" ? val : null,
-                            decoration: InputDecoration(
-                                labelText: 'Enter Correct Answer'
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          title: TextFormField(
-                            initialValue: "",
-                            onSaved: (val) => qMap["false1"] = val,
-                            validator: (val) => val == "" ? val : null,
-                            decoration: InputDecoration(
-                                labelText: 'Enter a False Answer'
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          title: TextFormField(
-                            initialValue: "",
-                            onSaved: (val) => qMap["false2"] = val,
-                            validator: (val) => val == "" ? val : null,
-                            decoration: InputDecoration(
-                                labelText: 'Enter a False Answer'
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          title: TextFormField(
-                            initialValue: "",
-                            onSaved: (val) => qMap["false3"] = val,
-                            validator: (val) => val == "" ? val : null,
-                            decoration: InputDecoration(
-                                labelText: 'Enter a False Answer'
-                            ),
-                          ),
-                        ),
-                        RaisedButton(
-                          onPressed: () {
-                            return showDialog<void>(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  content: new Text("Question added! Add another?"),
-                                  actions: <Widget>[
-                                    new FlatButton(
-                                      child: const Text('YES'),
-                                      onPressed: () {
-                                        handleQuestionSubmit();
-                                        Navigator.pop(context, false);
-                                      },
-                                    ),
-                                    new FlatButton(
-                                      child: const Text('NO'),
-                                      onPressed: () {
-                                        handleQuestionSubmit();
-                                        handleFinalSubmit();
-                                        Navigator.pop(context);
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                          color: Colors.lightGreenAccent,
-                          padding: EdgeInsets.all(10.0),
-                          child: Column(
+        body: Center(
+          child: Container(
+            decoration: new BoxDecoration(
+              image: new DecorationImage(
+                image: new AssetImage("images/ambient3.gif"),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints.expand(),
+              child: SingleChildScrollView(
+                controller: scroll,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    Flexible(
+                      flex: 0,
+                      child: Center(
+                        child: Form(
+                          key: questKey,
+                          child: Flex(
+                            direction: Axis.vertical,
                             children: <Widget>[
-                              Icon(Icons.report),
-                              Text("Submit"),
+                              new Text (
+                                  'Enter prompt, answer, and 3 false answers',
+                                  style: TextStyle(fontSize: 20, color: Colors.white70),
+                              ),
+                              Container(
+                                color: Theme.of(context).accentColor,
+                                child: ListTile(
+                                  title: TextFormField(
+                                    initialValue: "",
+                                    onSaved: (val) => qMap["prompt"] = val,
+                                    validator: (val) => val == "" ? val : null,
+                                    decoration: InputDecoration(
+                                        labelText: 'Enter Prompt'
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                color: Theme.of(context).accentColor,
+                                child: ListTile(
+                                  title: TextFormField(
+                                    initialValue: "",
+                                    onSaved: (val) => qMap["answer"] = val,
+                                    validator: (val) => val == "" ? val : null,
+                                    decoration: InputDecoration(
+                                        labelText: 'Enter Correct Answer'
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                color: Theme.of(context).accentColor,
+                                child: ListTile(
+                                  title: TextFormField(
+                                    initialValue: "",
+                                    onSaved: (val) => qMap["false1"] = val,
+                                    validator: (val) => val == "" ? val : null,
+                                    decoration: InputDecoration(
+                                        labelText: 'Enter a False Answer'
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                color: Theme.of(context).accentColor,
+                                child: ListTile(
+                                  title: TextFormField(
+                                    initialValue: "",
+                                    onSaved: (val) => qMap["false2"] = val,
+                                    validator: (val) => val == "" ? val : null,
+                                    decoration: InputDecoration(
+                                        labelText: 'Enter a False Answer'
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                color: Theme.of(context).accentColor,
+                                child: ListTile(
+                                  title: TextFormField(
+                                    initialValue: "",
+                                    onSaved: (val) => qMap["false3"] = val,
+                                    validator: (val) => val == "" ? val : null,
+                                    decoration: InputDecoration(
+                                        labelText: 'Enter a False Answer'
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              RaisedButton(
+                                onPressed: () {
+                                  showDialog<void>(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: new Text("Question added! Add another?"),
+                                        actions: <Widget>[
+                                          new FlatButton(
+                                            child: const Text('YES'),
+                                            onPressed: () {
+                                              handleQuestionSubmit();
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                          new FlatButton(
+                                            child: const Text('NO'),
+                                            onPressed: () {
+                                              handleQuestionSubmit();
+                                              handleFinalSubmit();
+                                              Navigator.popUntil(context, ModalRoute.withName(Navigator.defaultRouteName));
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                color: Colors.lightGreenAccent,
+                                padding: EdgeInsets.all(10.0),
+                                child: Column(
+                                  children: <Widget>[
+                                    Icon(Icons.report),
+                                    Text("Submit"),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                    RaisedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('Cancel')
+                    ),
+                  ],
                 ),
               ),
-              RaisedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text('Cancel')
-              ),
-            ],
+            ),
           ),
-        )
+        ),
       );
     }
   }
